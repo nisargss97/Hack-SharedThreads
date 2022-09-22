@@ -130,7 +130,8 @@ namespace ChatLifecycle.Controllers
         public async Task<string> GetChats(string token, string otherUserId, string userID, string title)
         {
             var graphClient = GraphClient.GetGraphClient(token);
-            IGraphServiceChatsCollectionPage chatsTask =  await graphClient.Chats.Request().Expand("members").GetAsync();
+            //chatType eq 'meeting' or chatType eq 'group'
+            IGraphServiceChatsCollectionPage chatsTask =  await graphClient.Chats.Request().Filter("chatType eq 'meeting' or chatType eq 'group'").Expand("members").GetAsync();
 
             List<string> chats = new List<string>();
             foreach(var chat in chatsTask.CurrentPage)
@@ -139,7 +140,7 @@ namespace ChatLifecycle.Controllers
                 if (found) chats.Add(chat.Topic);
             }    
 
-            return string.Join(',', chats);
+            return JsonConvert.SerializeObject(chats);
         }
 
         public async void CreateGroupChat(GraphServiceClient graphClient, string[] members, string userID, string title)
